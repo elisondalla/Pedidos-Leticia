@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Sistema de Pedidos e Romaneios - H Santos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f5f7;color:#1a1a1a;font-family:'Segoe UI',Arial,sans-serif;line-height:1.6;padding:30px 40px}
+.login-tela{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#1B2A5C 0%,#2E4B9E 100%);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.login-box{background:#fff;border-radius:16px;padding:45px 40px;max-width:420px;width:100%;box-shadow:0 25px 70px rgba(0,0,0,.4);text-align:center}
+.login-logo{display:inline-block;background:#1B2A5C;color:#fff;padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:3px;margin-bottom:20px}
+.login-titulo{font-size:22px;font-weight:700;color:#1B2A5C;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.login-sub{font-size:12px;color:#666;letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:30px;padding-bottom:25px;border-bottom:2px solid #E5E8EE}
+.login-campo{text-align:left;margin-bottom:18px}
+.login-campo label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:#555;display:block;margin-bottom:6px}
+.login-campo select,.login-campo input{width:100%;background:#F8F9FB;border:1px solid #D4D8E1;border-radius:10px;padding:14px 16px;font-size:15px;font-family:inherit;color:#1a1a1a}
+.login-campo select:focus,.login-campo input:focus{outline:none;border-color:#1B2A5C;background:#fff;box-shadow:0 0 0 3px rgba(27,42,92,.1)}
+.login-erro{background:#FEF0F0;border:2px solid #D9182D;color:#D9182D;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:600;margin-bottom:15px;display:none}
+.login-erro.ativo{display:block}
+.btn-login{width:100%;background:#1B2A5C;color:#fff;border:none;padding:16px;border-radius:10px;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:2px;cursor:pointer;font-family:inherit;transition:all .3s;margin-top:10px}
+.btn-login:hover{background:#2E4B9E;transform:translateY(-2px);box-shadow:0 8px 22px rgba(27,42,92,.4)}
+.login-rodape{margin-top:25px;font-size:11px;color:#999;letter-spacing:2px;text-transform:uppercase}
+.page-header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #1B2A5C;position:relative}
+.page-header .obra-badge{display:inline-block;background:#1B2A5C;color:#fff;padding:8px 24px;border-radius:20px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+.page-header h1{font-size:26px;text-transform:uppercase;letter-spacing:3px;font-weight:700;color:#1B2A5C;margin-bottom:6px}
+.page-header .sub{font-size:12px;color:#666;letter-spacing:4px;text-transform:uppercase;font-weight:600}
+.btn-sair{position:absolute;top:0;right:0;background:#fff;color:#D9182D;border:2px solid #D9182D;padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:inherit}
+.btn-sair:hover{background:#D9182D;color:#fff}
+.container{max-width:1200px;margin:0 auto}
+.sub-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:25px}
+.sub-tab{background:#fff;color:#666;border:2px solid #D4D8E1;padding:10px 22px;cursor:pointer;border-radius:20px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;font-family:inherit;display:flex;align-items:center;gap:10px}
+.sub-tab:hover{border-color:#1B2A5C;color:#1B2A5C}
+.sub-tab.ativo{background:#1B2A5C;color:#fff;border-color:#1B2A5C}
+.sub-tab.ativo.concluidos{background:#16A34A;border-color:#16A34A}
+.sub-tab .count{background:rgba(255,255,255,.3);padding:2px 10px;border-radius:10px;font-size:11px;font-weight:700}
+.sub-tab:not(.ativo) .count{background:#E5E8EE;color:#666}
+.grid-form{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo label{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:#555}
+.campo label .obrig{color:#D9182D;margin-left:3px}
+.campo label .opc{color:#999;font-weight:600;text-transform:none;font-size:11px;margin-left:4px}
+.campo input,.campo select,.campo textarea{background:#F8F9FB;border:1px solid #D4D8E1;border-radius:8px;padding:12px 14px;font-size:14px;font-family:inherit;color:#1a1a1a}
+.campo input:focus,.campo select:focus,.campo textarea:focus{outline:none;border-color:#1B2A5C;background:#fff;box-shadow:0 0 0 3px rgba(27,42,92,.1)}
+.campo textarea{resize:vertical;min-height:70px}
+.campo-unidade{display:flex;gap:8px}
+.campo-unidade input,.campo-unidade select{flex:1}
+.acoes{display:flex;justify-content:center;gap:15px;margin:25px 0 35px 0}
+.btn{padding:13px 36px;border-radius:10px;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;cursor:pointer;border:none;font-family:inherit}
+.btn-primario{background:#1B2A5C;color:#fff}
+.btn-primario:hover{background:#2E4B9E}
+.btn-secundario{background:#fff;color:#1B2A5C;border:2px solid #1B2A5C}
+.btn-secundario:hover{background:#F8F9FB}
+.section-titulo{text-align:center;margin-bottom:22px;padding-bottom:12px;border-bottom:2px solid #E5E8EE}
+.section-titulo h2{font-size:18px;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:#1B2A5C}
+.section-titulo .contador{font-size:13px;color:#666;margin-top:4px}
+.pedido-card{background:#fff;border-radius:14px;padding:22px 26px;margin-bottom:16px;box-shadow:0 2px 12px rgba(27,42,92,.1);border-left:6px solid #1B2A5C}
+.pedido-card.completo{border-left-color:#16A34A}
+.pedido-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:16px;padding-bottom:16px;border-bottom:2px solid #E5E8EE}
+.pedido-info{display:flex;flex-direction:column;gap:5px;flex-grow:1}
+.pedido-numero{font-size:18px;font-weight:700;color:#1B2A5C;text-transform:uppercase;letter-spacing:1px}
+.pedido-fornecedor{font-size:14px;color:#333;font-weight:600}
+.pedido-data{font-size:12px;color:#666}
+.pedido-progresso{text-align:right;display:flex;flex-direction:column;gap:5px;min-width:170px}
+.progresso-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#999;font-weight:700}
+.progresso-valor{font-size:20px;font-weight:700;color:#1B2A5C}
+.progresso-valor.completo{color:#16A34A}
+.progresso-bar{height:9px;background:#E5E8EE;border-radius:5px;overflow:hidden;margin-top:5px}
+.progresso-fill{height:100%;background:#1B2A5C;border-radius:5px}
+.progresso-fill.completo{background:#16A34A}
+.entregas-bloco{background:#F8F9FB;border-radius:12px;padding:16px 18px;border:1px solid #E5E8EE;margin-bottom:12px}
+.entregas-titulo{font-size:12px;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:#1B2A5C;margin-bottom:12px;display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px dashed #D4D8E1}
+.entregas-titulo .badge{background:#1B2A5C;color:#fff;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700}
+.entregas-titulo .badge.completo{background:#16A34A}
+.entrega-row{background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:15px;border-left:4px solid #1B2A5C}
+.entrega-row:last-child{margin-bottom:0}
+.entrega-row-numero{font-size:10px;color:#999;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.entrega-row-info{display:flex;flex-direction:column;gap:2px;flex-grow:1}
+.entrega-row-data{font-size:13px;color:#333;font-weight:600}
+.entrega-row-qtd{font-size:12px;color:#666}
+.entrega-row-responsaveis{font-size:11px;color:#888;margin-top:5px;padding-top:5px;border-top:1px dashed #E5E8EE}
+.entrega-row-responsaveis strong{color:#1B2A5C;font-weight:600}
+.entrega-row-acoes{display:flex;gap:6px}
+.sem-entregas{text-align:center;color:#999;font-size:12px;padding:14px 0;font-style:italic}
+.sem-pedidos{text-align:center;padding:50px 20px;color:#999;font-size:14px}
+.sem-pedidos strong{color:#1B2A5C;display:block;font-size:17px;margin-bottom:6px}
+.btn-mini{padding:6px 12px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border:none;font-family:inherit}
+.btn-deletar{background:#fff;color:#D9182D;border:2px solid #D9182D}
+.btn-deletar:hover{background:#D9182D;color:#fff}
+.btn-add-romaneio{background:#fff;color:#1B2A5C;border:2px dashed #1B2A5C;padding:12px 18px;border-radius:10px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;width:100%;font-family:inherit}
+.btn-add-romaneio:hover{background:#F8F9FB}
+.pedido-acoes{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;padding-top:12px;border-top:1px solid #E5E8EE}
+.rodape{text-align:center;margin-top:50px;padding-top:20px;border-top:1px solid #E5E8EE;color:#999;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600}
+.toast{position:fixed;bottom:25px;right:25px;background:#1B2A5C;color:#fff;padding:14px 22px;border-radius:10px;font-weight:600;box-shadow:0 8px 22px rgba(27,42,92,.4);transform:translateY(100px);opacity:0;transition:all .4s;z-index:999;font-size:14px}
+.toast.visivel{transform:translateY(0);opacity:1}
+.toast.erro{background:#D9182D}
+.toast.sucesso{background:#16A34A}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:998;padding:20px}
+.modal-overlay.ativo{display:flex}
+.modal{background:#fff;border-radius:14px;padding:32px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-titulo{font-size:17px;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:#1B2A5C;margin-bottom:6px}
+.modal-sub{font-size:12px;color:#666;margin-bottom:22px}
+.modal-resumo{background:#F8F9FB;border-radius:10px;padding:16px 20px;margin-bottom:20px;border-left:4px solid #1B2A5C}
+.modal-resumo-titulo{font-size:14px;font-weight:700;color:#1B2A5C;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.modal-resumo-material{font-size:12px;color:#555;margin-bottom:12px}
+.modal-resumo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.modal-resumo-item{background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #E5E8EE}
+.modal-resumo-item.destaque{border:2px solid #1B2A5C}
+.modal-resumo-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#999;font-weight:700;margin-bottom:3px}
+.modal-resumo-valor{font-size:15px;font-weight:700;color:#1B2A5C}
+.modal-resumo-item.destaque .modal-resumo-valor{color:#D9182D}
+.modal-acoes{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid #E5E8EE}
+.sistema-container{display:none}
+.sistema-container.ativo{display:block}
+@media (max-width:900px){
+  .grid-form{grid-template-columns:1fr}
+  .pedido-header{flex-direction:column}
+  .pedido-progresso{text-align:left;min-width:auto;width:100%}
+  .entrega-row{flex-direction:column;align-items:stretch}
+  .modal-resumo-grid{grid-template-columns:1fr}
+  body{padding:20px 15px}
+  .btn-sair{position:relative;display:block;margin:10px auto 0}
+}
+</style>
+</head>
+<body>
+
+<div class="login-tela" id="loginTela">
+  <div class="login-box">
+    <div class="login-logo">H Santos</div>
+    <div class="login-titulo">Sistema de Pedidos</div>
+    <div class="login-sub">Controle de Recebimento</div>
+    <div class="login-erro" id="loginErro">Senha incorreta. Tente novamente.</div>
+    <div class="login-campo">
+      <label>Obra</label>
+      <select id="loginObra">
+        <option value="SABATINI GARDENS">SABATINI GARDENS</option>
+        <option value="CLASSIC 236">CLASSIC 236</option>
+        <option value="THE BREEZE">THE BREEZE</option>
+        <option value="MONTICELLO">MONTICELLO</option>
+        <option value="THE WIND">THE WIND</option>
+        <option value="THE RIVER">THE RIVER</option>
+      </select>
+    </div>
+    <div class="login-campo">
+      <label>Senha de Acesso</label>
+      <input type="password" id="loginSenha" placeholder="Digite a senha" onkeypress="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <button class="btn-login" onclick="fazerLogin()">Acessar</button>
+    <div class="login-rodape">H Santos Empreendimentos • v1.0</div>
+  </div>
+</div>
+
+<div class="sistema-container" id="sistema">
+  <div class="page-header">
+    <button class="btn-sair" onclick="fazerLogout()">Sair</button>
+    <div class="obra-badge" id="obraBadge">OBRA</div>
+    <h1>Pedidos e Romaneios</h1>
+    <div class="sub">H Santos Empreendimentos • Controle de Recebimento</div>
+  </div>
+  <div class="container">
+    <div class="sub-tabs" id="subTabs"></div>
+    <div id="conteudo"></div>
+  </div>
+  <div class="rodape">H Santos Empreendimentos • Sistema de Pedidos e Romaneios</div>
+</div>
+
+<div class="toast" id="toast"></div><div class="modal-overlay" id="modalPedido">
+  <div class="modal">
+    <div class="modal-titulo">Cadastrar Pedido</div>
+    <div class="modal-sub">Registrar pedido existente da Compras</div>
+    <form id="formPedido" autocomplete="off">
+      <div class="grid-form">
+        <div class="campo"><label>Nº do Pedido <span class="obrig">*</span></label><input type="text" id="ped_numero" placeholder="Ex: PED-2026-001" required></div>
+        <div class="campo"><label>Data do Pedido <span class="obrig">*</span></label><input type="date" id="ped_data" required></div>
+        <div class="campo"><label>Fornecedor <span class="obrig">*</span></label><input type="text" id="ped_fornecedor" placeholder="Ex: Djalma Materiais" required></div>
+        <div class="campo"><label>Quantidade Total <span class="obrig">*</span></label><input type="number" id="ped_quantidade" step="0.01" min="0" placeholder="Ex: 500" required></div>
+        <div class="campo"><label>Unidade <span class="obrig">*</span></label>
+          <select id="ped_unidade" required>
+            <option value="">Selecione</option>
+            <option value="un">Unidade (un)</option>
+            <option value="m²">Metro Quadrado (m²)</option>
+            <option value="m³">Metro Cúbico (m³)</option>
+            <option value="m">Metro (m)</option>
+            <option value="kg">Quilograma (kg)</option>
+            <option value="sc">Saco (sc)</option>
+            <option value="cx">Caixa (cx)</option>
+            <option value="pc">Peça (pc)</option>
+            <option value="barra">Barra</option>
+            <option value="rolo">Rolo</option>
+          </select>
+        </div>
+        <div class="campo" style="grid-column:span 2"><label>Descrição do Material <span class="obrig">*</span></label><textarea id="ped_descricao" placeholder="Ex: 500 sacos de cimento CP-II" required></textarea></div>
+      </div>
+      <div class="modal-acoes">
+        <button type="button" class="btn btn-secundario" onclick="fecharModalPedido()">Cancelar</button>
+        <button type="submit" class="btn btn-primario">Cadastrar Pedido</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalRecebimento">
+  <div class="modal">
+    <div class="modal-titulo">Cadastrar Recebimento</div>
+    <div class="modal-sub">Registrar romaneio vinculado ao pedido</div>
+    <div class="modal-resumo" id="resumoPedido" style="display:none">
+      <div class="modal-resumo-titulo" id="resumoPedidoTitulo">Pedido</div>
+      <div class="modal-resumo-material" id="resumoMaterial">Material</div>
+      <div class="modal-resumo-grid">
+        <div class="modal-resumo-item"><div class="modal-resumo-label">Total do Pedido</div><div class="modal-resumo-valor" id="resumoTotal">0</div></div>
+        <div class="modal-resumo-item"><div class="modal-resumo-label">Já Recebido</div><div class="modal-resumo-valor" id="resumoRecebido">0</div></div>
+        <div class="modal-resumo-item destaque"><div class="modal-resumo-label">Falta Receber</div><div class="modal-resumo-valor" id="resumoFalta">0</div></div>
+      </div>
+    </div>
+    <form id="formRecebimento" autocomplete="off">
+      <div class="grid-form">
+        <div class="campo" style="grid-column:span 2">
+          <label>Nº do Pedido <span class="obrig">*</span></label>
+          <div class="campo-unidade">
+            <select id="rec_pedidoSelect" onchange="selecionarPedido()">
+              <option value="">Selecione um pedido</option>
+            </select>
+            <input type="text" id="rec_pedidoManual" placeholder="Ou digite o nº" oninput="atualizarResumo()">
+          </div>
+        </div>
+        <div class="campo"><label>Data de Recebimento <span class="obrig">*</span></label><input type="date" id="rec_data" required></div>
+        <div class="campo"><label>Hora de Recebimento <span class="obrig">*</span></label><input type="time" id="rec_hora" required></div>
+        <div class="campo"><label>Nº do Romaneio <span class="opc">(opcional)</span></label><input type="text" id="rec_romaneio" placeholder="Caso tenha número"></div>
+        <div class="campo"><label>Quantidade Recebida <span class="obrig">*</span></label><input type="number" id="rec_quantidade" step="0.01" min="0" placeholder="Ex: 100" required></div>
+        <div class="campo"><label>Unidade <span class="obrig">*</span></label>
+          <select id="rec_unidade" required>
+            <option value="">Selecione</option>
+            <option value="un">Unidade (un)</option>
+            <option value="m²">Metro Quadrado (m²)</option>
+            <option value="m³">Metro Cúbico (m³)</option>
+            <option value="m">Metro (m)</option>
+            <option value="kg">Quilograma (kg)</option>
+            <option value="sc">Saco (sc)</option>
+            <option value="cx">Caixa (cx)</option>
+            <option value="pc">Peça (pc)</option>
+            <option value="barra">Barra</option>
+            <option value="rolo">Rolo</option>
+          </select>
+        </div>
+        <div class="campo"></div>
+        <div class="campo"><label>Solicitado por <span class="obrig">*</span></label><input type="text" id="rec_solicitante" placeholder="Quem solicitou" required></div>
+        <div class="campo"><label>Recebido por <span class="obrig">*</span></label><input type="text" id="rec_recebedor" placeholder="Quem recebeu" required></div>
+      </div>
+      <div class="modal-acoes">
+        <button type="button" class="btn btn-secundario" onclick="fecharModalRecebimento()">Cancelar</button>
+        <button type="submit" class="btn btn-primario">Cadastrar Recebimento</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+var SENHAS = {
+  "SABATINI GARDENS": "sabatini1",
+  "CLASSIC 236": "classic2",
+  "THE BREEZE": "breeze3",
+  "MONTICELLO": "monticello4",
+  "THE WIND": "wind5",
+  "THE RIVER": "river6"
+};
+
+var obraAtual = null;
+var subAbaAtual = "andamento";
+var toastTimeout;
+
+function fazerLogin(){
+  var obra = document.getElementById("loginObra").value;
+  var senha = document.getElementById("loginSenha").value;
+  var erro = document.getElementById("loginErro");
+  if(SENHAS[obra] && SENHAS[obra] === senha){
+    obraAtual = obra;
+    erro.classList.remove("ativo");
+    document.getElementById("loginTela").style.display = "none";
+    document.getElementById("sistema").classList.add("ativo");
+    document.getElementById("obraBadge").textContent = obra;
+    subAbaAtual = "andamento";
+    renderizarSubTabs();
+    renderizarConteudo();
+  } else {
+    erro.classList.add("ativo");
+    document.getElementById("loginSenha").value = "";
+    document.getElementById("loginSenha").focus();
+  }
+}
+
+function fazerLogout(){
+  if(!confirm("Deseja sair? Você precisará digitar a senha novamente.")) return;
+  obraAtual = null;
+  subAbaAtual = "andamento";
+  document.getElementById("sistema").classList.remove("ativo");
+  document.getElementById("loginTela").style.display = "flex";
+  document.getElementById("loginSenha").value = "";
+  document.getElementById("loginErro").classList.remove("ativo");
+}
+
+function getPedidos(o){ var d = localStorage.getItem("hs_pedidos_" + o); return d ? JSON.parse(d) : []; }
+function salvarPedidos(o, l){ localStorage.setItem("hs_pedidos_" + o, JSON.stringify(l)); }
+
+function mostrarToast(msg, tipo){
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast visivel " + (tipo || "sucesso");
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(function(){ t.classList.remove("visivel"); }, 3000);
+}
+
+function formatarData(d){
+  if(!d) return "-";
+  var p = d.split("-");
+  return p[2] + "/" + p[1] + "/" + p[0];
+}
+
+function calcularPct(p){
+  var tEnt = 0;
+  (p.recebimentos || []).forEach(function(r){ tEnt += parseFloat(r.quantidade); });
+  return p.quantidade > 0 ? Math.round((tEnt / p.quantidade) * 100) : 0;
+}
+
+function renderizarSubTabs(){
+  var pedidos = getPedidos(obraAtual);
+  var emAndamento = pedidos.filter(function(p){ return calcularPct(p) < 100; });
+  var concluidos = pedidos.filter(function(p){ return calcularPct(p) >= 100; });
+  var h = '';
+  h += '<button class="sub-tab' + (subAbaAtual === "andamento" ? " ativo" : "") + '" onclick="trocarSubAba(\'andamento\')">📦 Em Andamento <span class="count">' + emAndamento.length + '</span></button>';
+  h += '<button class="sub-tab concluidos' + (subAbaAtual === "concluidos" ? " ativo" : "") + '" onclick="trocarSubAba(\'concluidos\')">✅ Concluídos <span class="count">' + concluidos.length + '</span></button>';
+  document.getElementById("subTabs").innerHTML = h;
+}
+
+function trocarSubAba(aba){ subAbaAtual = aba; renderizarSubTabs(); renderizarConteudo(); }
+
+function abrirModalPedido(){ document.getElementById("modalPedido").classList.add("ativo"); }
+function fecharModalPedido(){ document.getElementById("modalPedido").classList.remove("ativo"); document.getElementById("formPedido").reset(); }
+function abrirModalRecebimento(){ atualizarSelectPedidos(); document.getElementById("modalRecebimento").classList.add("ativo"); }
+function fecharModalRecebimento(){ document.getElementById("modalRecebimento").classList.remove("ativo"); document.getElementById("formRecebimento").reset(); document.getElementById("resumoPedido").style.display = "none"; }
+
+function renderizarCardPedido(p){
+  var tEnt = 0;
+  (p.recebimentos || []).forEach(function(r){ tEnt += parseFloat(r.quantidade); });
+  var pct = calcularPct(p);
+  var completo = pct >= 100;
+  var h = '';
+  h += '<div class="pedido-card ' + (completo ? "completo" : "") + '">';
+  h += '<div class="pedido-header">';
+  h += '<div class="pedido-info">';
+  h += '<div class="pedido-numero">Pedido ' + p.numero + '</div>';
+  h += '<div class="pedido-fornecedor">' + p.fornecedor + '</div>';
+  h += '<div class="pedido-data">Data do pedido: ' + formatarData(p.data) + '</div>';
+  h += '</div>';
+  h += '<div class="pedido-progresso">';
+  h += '<div class="progresso-label">Recebido do Total</div>';
+  h += '<div class="progresso-valor ' + (completo ? "completo" : "") + '">' + tEnt + ' / ' + p.quantidade + ' ' + p.unidade + '</div>';
+  h += '<div class="progresso-bar"><div class="progresso-fill ' + (completo ? "completo" : "") + '" style="width:' + Math.min(pct,100) + '%"></div></div>';
+  h += '</div></div>';
+  h += '<div class="entregas-bloco">';
+  h += '<div class="entregas-titulo">📦 Recebimentos <span class="badge ' + (completo ? "completo" : "") + '">' + (p.recebimentos || []).length + ' • ' + pct + '%</span></div>';
+  if(!p.recebimentos || p.recebimentos.length === 0){
+    h += '<div class="sem-entregas">Nenhum recebimento registrado ainda.</div>';
+  } else {
+    p.recebimentos.forEach(function(r, idx){
+      var nRom = r.numeroRomaneio === "S/N" ? "Sem número" : "Romaneio Nº " + r.numeroRomaneio;
+      h += '<div class="entrega-row">';
+      h += '<div class="entrega-row-info">';
+      h += '<div class="entrega-row-numero">' + (idx + 1) + 'º Recebimento • ' + nRom + '</div>';
+      h += '<div class="entrega-row-data">' + formatarData(r.data) + ' às ' + r.hora + '</div>';
+      h += '<div class="entrega-row-qtd">Quantidade: <strong>' + r.quantidade + ' ' + (r.unidade || p.unidade) + '</strong></div>';
+      h += '<div class="entrega-row-responsaveis">Solicitado por: <strong>' + r.solicitante + '</strong> • Recebido por: <strong>' + r.recebedor + '</strong></div>';
+      h += '</div>';
+      h += '<div class="entrega-row-acoes">';
+      h += '<button class="btn-mini btn-deletar" onclick="deletarRecebimento(\'' + p.id + '\',\'' + r.id + '\')">Excluir</button>';
+      h += '</div></div>';
+    });
+  }
+  h += '</div>';
+  if(!completo){
+    h += '<button class="btn-add-romaneio" onclick="abrirModalRecebimentoPara(\'' + p.id + '\')">+ Adicionar Recebimento</button>';
+  }
+  h += '<div class="pedido-acoes">';
+  h += '<button class="btn-mini btn-deletar" onclick="deletarPedido(\'' + p.id + '\')">Excluir Pedido</button>';
+  h += '</div>';
+  h += '</div>';
+  return h;
+}
+
+function renderizarConteudo(){
+  var c = document.getElementById("conteudo");
+  var pedidos = getPedidos(obraAtual);
+  var emAndamento = pedidos.filter(function(p){ return calcularPct(p) < 100; });
+  var concluidos = pedidos.filter(function(p){ return calcularPct(p) >= 100; });
+  var lista = subAbaAtual === "andamento" ? emAndamento : concluidos;
+  var h = '';
+  if(subAbaAtual === "andamento"){
+    h += '<div class="acoes">';
+    h += '<button class="btn btn-primario" onclick="abrirModalPedido()">+ Cadastrar Pedido</button>';
+    h += '<button class="btn btn-secundario" onclick="abrirModalRecebimento()">+ Cadastrar Recebimento</button>';
+    h += '</div>';
+  }
+  h += '<div class="section-titulo">';
+  h += '<h2>' + (subAbaAtual === "andamento" ? "Em Andamento" : "Concluídos") + '</h2>';
+  h += '<div class="contador">' + (lista.length === 0 ? (subAbaAtual === "andamento" ? "Nenhum pedido em andamento" : "Nenhum pedido concluído ainda") : lista.length + (lista.length === 1 ? " pedido" : " pedidos")) + '</div>';
+  h += '</div>';
+  if(lista.length === 0){
+    if(subAbaAtual === "andamento"){
+      h += '<div class="sem-pedidos"><strong>Nenhum pedido em andamento</strong>Clique em "+ Cadastrar Pedido" para começar.</div>';
+    } else {
+      h += '<div class="sem-pedidos"><strong>Nenhum pedido concluído</strong>Quando um pedido for 100% recebido, ele aparecerá aqui.</div>';
+    }
+  } else {
+    lista.forEach(function(p){ h += renderizarCardPedido(p); });
+  }
+  c.innerHTML = h;
+}
+
+document.getElementById("formPedido").addEventListener("submit", function(e){
+  e.preventDefault();
+  var pedido = {
+    id: String(Date.now()),
+    numero: document.getElementById("ped_numero").value.trim(),
+    data: document.getElementById("ped_data").value,
+    fornecedor: document.getElementById("ped_fornecedor").value.trim(),
+    quantidade: parseFloat(document.getElementById("ped_quantidade").value),
+    unidade: document.getElementById("ped_unidade").value,
+    descricao: document.getElementById("ped_descricao").value.trim(),
+    recebimentos: []
+  };
+  var lista = getPedidos(obraAtual);
+  lista.unshift(pedido);
+  salvarPedidos(obraAtual, lista);
+  mostrarToast("Pedido cadastrado!", "sucesso");
+  fecharModalPedido();
+  renderizarSubTabs();
+  renderizarConteudo();
+});
+
+function atualizarSelectPedidos(){
+  var sel = document.getElementById("rec_pedidoSelect");
+  sel.innerHTML = '<option value="">Selecione um pedido</option>';
+  getPedidos(obraAtual).forEach(function(p){
+    var pct = calcularPct(p);
+    if(pct >= 100) return;
+    var opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = "Pedido " + p.numero + " — " + p.fornecedor;
+    sel.appendChild(opt);
+  });
+}
+
+function selecionarPedido(){
+  var sel = document.getElementById("rec_pedidoSelect");
+  if(sel.value) document.getElementById("rec_pedidoManual").value = "";
+  atualizarResumo();
+}
+
+function atualizarResumo(){
+  var sel = document.getElementById("rec_pedidoSelect");
+  var manual = document.getElementById("rec_pedidoManual").value.trim();
+  var resumo = document.getElementById("resumoPedido");
+  var p = null;
+  var pedidos = getPedidos(obraAtual);
+  if(sel.value){
+    p = pedidos.find(function(x){ return x.id === sel.value; });
+  } else if(manual){
+    p = pedidos.find(function(x){ return x.numero.toLowerCase() === manual.toLowerCase(); });
+  }
+  if(!p){ resumo.style.display = "none"; return; }
+  var tEnt = 0;
+  (p.recebimentos || []).forEach(function(r){ tEnt += parseFloat(r.quantidade); });
+  var falta = p.quantidade - tEnt;
+  if(falta < 0) falta = 0;
+  document.getElementById("resumoPedidoTitulo").textContent = "Pedido " + p.numero + " — " + p.fornecedor;
+  document.getElementById("resumoMaterial").textContent = "Material: " + p.descricao;
+  document.getElementById("resumoTotal").textContent = p.quantidade + " " + p.unidade;
+  document.getElementById("resumoRecebido").textContent = tEnt + " " + p.unidade;
+  document.getElementById("resumoFalta").textContent = falta + " " + p.unidade;
+  document.getElementById("rec_unidade").value = p.unidade || "";
+  resumo.style.display = "block";
+}
+
+function abrirModalRecebimentoPara(pedidoId){
+  atualizarSelectPedidos();
+  document.getElementById("rec_pedidoSelect").value = pedidoId;
+  atualizarResumo();
+  var a = new Date();
+  document.getElementById("rec_data").value = a.getFullYear() + "-" + String(a.getMonth()+1).padStart(2,"0") + "-" + String(a.getDate()).padStart(2,"0");
+  document.getElementById("rec_hora").value = String(a.getHours()).padStart(2,"0") + ":" + String(a.getMinutes()).padStart(2,"0");
+  document.getElementById("modalRecebimento").classList.add("ativo");
+}
+
+document.getElementById("formRecebimento").addEventListener("submit", function(e){
+  e.preventDefault();
+  var sel = document.getElementById("rec_pedidoSelect");
+  var manual = document.getElementById("rec_pedidoManual").value.trim();
+  var pedidos = getPedidos(obraAtual);
+  var p = null;
+  if(sel.value){
+    p = pedidos.find(function(x){ return x.id === sel.value; });
+  } else if(manual){
+    p = pedidos.find(function(x){ return x.numero.toLowerCase() === manual.toLowerCase(); });
+  }
+  if(!p){
+    mostrarToast("Pedido não encontrado. Cadastre o pedido primeiro.", "erro");
+    return;
+  }
+  var recebimento = {
+    id: String(Date.now()),
+    data: document.getElementById("rec_data").value,
+    hora: document.getElementById("rec_hora").value,
+    numeroRomaneio: document.getElementById("rec_romaneio").value.trim() || "S/N",
+    quantidade: parseFloat(document.getElementById("rec_quantidade").value),
+    unidade: document.getElementById("rec_unidade").value,
+    solicitante: document.getElementById("rec_solicitante").value.trim(),
+    recebedor: document.getElementById("rec_recebedor").value.trim()
+  };
+  p.recebimentos = p.recebimentos || [];
+  p.recebimentos.push(recebimento);
+  salvarPedidos(obraAtual, pedidos);
+  var pct = calcularPct(p);
+  if(pct >= 100){
+    mostrarToast("Recebimento registrado! Pedido concluído e arquivado.", "sucesso");
+  } else {
+    mostrarToast("Recebimento registrado!", "sucesso");
+  }
+  fecharModalRecebimento();
+  renderizarSubTabs();
+  renderizarConteudo();
+});
+
+function deletarRecebimento(pedidoId, recId){
+  if(!confirm("Excluir este recebimento?")) return;
+  var pedidos = getPedidos(obraAtual);
+  var p = pedidos.find(function(x){ return x.id === pedidoId; });
+  if(!p) return;
+  p.recebimentos = (p.recebimentos || []).filter(function(r){ return r.id !== recId; });
+  salvarPedidos(obraAtual, pedidos);
+  mostrarToast("Recebimento excluído", "sucesso");
+  renderizarSubTabs();
+  renderizarConteudo();
+}
+
+function deletarPedido(id){
+  if(!confirm("Excluir este pedido e TODOS os recebimentos?")) return;
+  var lista = getPedidos(obraAtual).filter(function(x){ return x.id !== id; });
+  salvarPedidos(obraAtual, lista);
+  mostrarToast("Pedido excluído", "sucesso");
+  renderizarSubTabs();
+  renderizarConteudo();
+}
+
+document.getElementById("loginSenha").focus();
+</script>
+
+</body>
+</html>
